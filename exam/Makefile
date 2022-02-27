@@ -1,4 +1,4 @@
-SRC = tests.cpp
+SRC = tests.cpp check_stack_pool.cpp check_const_iterator.cpp check_swap.cpp
 
 CXX = c++
 CXXFLAGS = -Wall -Wextra -std=c++14 -O3
@@ -35,8 +35,28 @@ clean:
 
 .PHONY: clean
 
-tests.x : tests_main.o tests.o
+documentation: Doxygen/doxyfile
+	doxygen $^
+
+.PHONY: documentation
+
+tests.x: tests_main.o tests.o
 
 tests.o: tests.cpp catch.hpp stack_pool.hpp
 
+stack_pool.o: stack_pool.cpp
+
+check_stack_pool.x: check_stack_pool.o
+
+check_stack_pool.o: check_stack_pool.cpp stack_pool.cpp
+
+check_const_iterator.x: check_const_iterator.o
+
+check_const_iterator.o: check_const_iterator.cpp stack_pool.cpp
+
+check_swap.x: check_swap.o
+
+check_swap.o: check_swap.cpp
+
 format : stack_pool.hpp
+
