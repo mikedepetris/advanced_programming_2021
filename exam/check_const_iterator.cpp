@@ -120,10 +120,18 @@ int main() {
         l1 = pool.push(3, l1);
         pool.print_pool_int();
         pool.print_stack_int(l1);
+        auto v1 = pool.get_stack_vector(l1);
+        print_vector(v1, "vector value of l1=");
+
         iterator_normal_pool_integer_test(pool, l1);
+
         pool.print_pool_int();
         pool.print_stack_int(l1);
         pool.print_freenodes_int();
+        const auto v2 = pool.get_stack_vector(l1);
+        print_vector(v2, "vector value of l1=");
+        print_vector(pool.get_stack_vector(l1), "vector value of l1=");
+        print_vector(pool.get_stack_vector(3), "vector value of l1=");
     }
     return 0;
 }

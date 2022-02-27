@@ -50,9 +50,9 @@ public:
     /**
      * copy assignment operator needed for const iterator
      */
-    stack_pool_iterator &operator=(const stack_pool_iterator &x) noexcept {
-        if (current != x.current)
-            current = x.current;
+    stack_pool_iterator &operator=(const stack_pool_iterator &stackPoolIterator) noexcept {
+        if (current != stackPoolIterator.current)
+            current = stackPoolIterator.current;
         return *this;
     }
 
@@ -69,12 +69,12 @@ public:
         return tmp;
     }
 
-    friend bool operator==(const stack_pool_iterator &x, const stack_pool_iterator &y) {
-        return x.current == y.current;
+    friend bool operator==(const stack_pool_iterator &stackPoolIterator1, const stack_pool_iterator &stackPoolIterator2) {
+        return stackPoolIterator1.current == stackPoolIterator2.current;
     }
 
-    friend bool operator!=(const stack_pool_iterator &x, const stack_pool_iterator &y) {
-        return !(x == y);
+    friend bool operator!=(const stack_pool_iterator &stackPoolIterator1, const stack_pool_iterator &stackPoolIterator2) {
+        return !(stackPoolIterator1 == stackPoolIterator2);
     }
 
 };
@@ -101,8 +101,8 @@ class stack_pool {
     std::vector<node_t> pool;
     stack_type free_nodes; // at the beginning, it is empty
 
-    node_t &node(const stack_type x) noexcept { return pool[x - 1]; } // node(x).value node(x).next
-    const node_t &node(const stack_type x) const noexcept { return pool[x - 1]; } // const { return node(x).next; }
+    node_t &node(const stack_type head) noexcept { return pool[head - 1]; } // node(head).value node(head).next
+    const node_t &node(const stack_type head) const noexcept { return pool[head - 1]; } // const { return node(head).next; }
 
 public:
     using size_type = typename std::vector<node_t>::size_type;
@@ -124,42 +124,42 @@ public:
     using iterator = stack_pool_iterator<stack_pool<value_type, stack_type>, value_type, stack_type>;
     using const_iterator = stack_pool_iterator<const stack_pool<value_type, stack_type>, const value_type, stack_type>;
 
-    iterator begin(stack_type x) { return iterator(*this, x); } //
-    iterator end(stack_type) noexcept { return iterator(*this, end()); } // this is not a typo
-    const_iterator begin(stack_type x) const { return const_iterator(*this, x); } //
+    iterator begin(stack_type head) { return iterator(*this, head); } //
+    iterator end(stack_type) noexcept { return iterator(*this, end()); } //
+    const_iterator begin(stack_type head) const { return const_iterator(*this, head); } //
     const_iterator end(stack_type) const noexcept { return const_iterator(*this, end()); } //
-    const_iterator cbegin(stack_type x) const { return const_iterator(*this, x); } //
+    const_iterator cbegin(stack_type head) const { return const_iterator(*this, head); } //
     const_iterator cend(stack_type) const noexcept { return const_iterator(*this, end()); } //
 
     stack_type new_stack() noexcept { return end(); } // return an empty stack
     void reserve(size_type n) { pool.reserve(n); } // reserve n nodes in the pool
     size_type capacity() const noexcept { return pool.capacity(); } // the capacity of the pool
-    bool empty(stack_type x) const noexcept { return x == end(); } // check if stack is empty
+    bool empty(stack_type head) const noexcept { return head == end(); } // check if stack is empty
 
     stack_type end() const noexcept { return stack_type(0); } // stack end is index 0 (trick)
 
     // get the last node of the stack
-    stack_type last(const stack_type x) const noexcept {
-        if (empty(x))
+    stack_type last(const stack_type head) const noexcept {
+        if (empty(head))
             return end();
-        stack_type current = x;
+        stack_type current = head;
         while (next(current) != end())
             ++current;
         return current;
     }
 
-    value_type &value(stack_type x) {
-        AP_ASSERT_SOFT(!empty(x), Stack_pool_exception) << "Can't access value in empty stack";
-        return node(x).value;
+    value_type &value(stack_type head) {
+        AP_ASSERT_SOFT(!empty(head), Stack_pool_exception) << "Can't access value in empty stack";
+        return node(head).value;
     }
 
-    const value_type &value(const stack_type x) const {
-        AP_ASSERT_SOFT(!empty(x), Stack_pool_exception) << "Can't access value in empty stack";
-        return node(x).value;
+    const value_type &value(const stack_type head) const {
+        AP_ASSERT_SOFT(!empty(head), Stack_pool_exception) << "Can't access value in empty stack";
+        return node(head).value;
     }
 
-    stack_type &next(stack_type x) { return node(x).next; } //
-    const stack_type &next(stack_type x) const { return node(x).next; }
+    stack_type &next(stack_type head) { return node(head).next; } //
+    const stack_type &next(stack_type head) const { return node(head).next; }
 
     stack_type push(const value_type &val, stack_type head) { return _push(val, head); } //
     stack_type push(value_type &&val, stack_type head) { return _push(std::move(val), head); }
@@ -167,32 +167,53 @@ public:
     /**
      * POP removes the first node and this does not return the node but returns the new head
      */
-    stack_type pop(stack_type x) {
-        if (empty(x))
+    stack_type pop(stack_type head) {
+        if (empty(head))
             return end();
-        auto new_head = next(x);
-        next(x) = free_nodes;
-        free_nodes = x;
+        auto new_head = next(head);
+        next(head) = free_nodes;
+        free_nodes = head;
         return new_head;
     }
 
     /**
      * free_stack frees entire stack
      */
-    stack_type free_stack(stack_type x) {
+    stack_type free_stack(stack_type head) {
         // easy way
-        // while (!empty(x)) x = this->pop(x);
+        // while (!empty(head)) head = this->pop(head);
         // New free_nodes head must become head of stack to free, appending free_nodes at the end
-        if (empty(x))
+        if (empty(head))
             return end();
         if (!empty(free_nodes)) {
-            stack_type last_node = last(x);
+            stack_type last_node = last(head);
             next(last_node) = free_nodes;
         }
-        free_nodes = x;
-        x = end();
-        return x;
+        free_nodes = head;
+        head = end();
+        return head;
     }
+
+    /**
+     * count stack nodes
+     */
+    std::size_t count_stack(stack_type head) {
+        size_t counter{0};
+        while (!empty(head)) {
+            ++counter;
+            head = next(head);
+        }
+        return counter;
+    }
+
+    /**
+     * build a vector of node values
+     */
+    std::vector<value_type> get_stack_vector(stack_type head) { return _get_stack_vector(head); }
+    /**
+     * build a vector of node values
+     */
+    const std::vector<value_type> get_stack_vector(stack_type &&head) const { return _get_stack_vector(head); }
 
     // initializer must be stack_pool constructor, but we need a head
     // std::initializer_list has higher priority vs custom ctors (call them with round parenthesis)
@@ -230,28 +251,31 @@ public:
         print_stack_vector(free_nodes);
     }
 
-    void print_stack_int(stack_type x) {
-        std::cout << "print stack[" << x << "] = [ ";
-        while (!empty(x)) {
-            std::cout << value(x) << "/" << next(x) << " ";
-            x = next(x);
+    void print_stack_int(stack_type head) {
+        std::cout << "print stack[" << head << "] (count=" << count_stack(head) << ") = [ ";
+        while (!empty(head)) {
+            std::cout << value(head) << "/" << next(head) << " ";
+            head = next(head);
         }
         std::cout << "]" << std::endl;
     }
 
-    void print_stack_vector(stack_type x) {
-        std::cout << "print stack[" << x << "] = [ ";
+    void print_stack_vector(stack_type head) {
+        std::cout << "print stack[" << head << "] (count=" << count_stack(head) << ") = [ ";
         std::cout << "not integer values ";
-        while (!empty(x)) {
-            std::cout << "<>/" << next(x) << " ";
-            x = next(x);
+        while (!empty(head)) {
+            std::cout << "<>/" << next(head) << " ";
+            head = next(head);
         }
         std::cout << "]" << std::endl;
     }
 
 private:
     /**
-     * when we push the head changes, we can use references but since there are integers
+     * Pushes the value into the given stack.
+     * If no more space is available, pool is doubled in size
+     *
+     * When we push the head changes, we can use references but since there are integers
      * and those integers can be smaller than 8 bytes (reference/pointer) and want to be fast
      * I prefer to pass the head by value and return the head
      * when you modify the head you have to return it like in:
@@ -259,8 +283,8 @@ private:
      */
     template<typename TT>
     stack_type _push(TT &&val, stack_type head) {
-        if (head >= capacity()) {
-            // ERROR no free space, we can increase the size, for example doubling it
+        if (!empty(free_nodes) && (head >= capacity())) {
+            // no free space, increase the size, for example doubling it
             reserve(2 * capacity());
         }
         if (empty(free_nodes)) {
@@ -276,6 +300,17 @@ private:
         }
     }
 
+    /**
+     * build a vector of node values
+     */
+    std::vector<value_type> _get_stack_vector(stack_type head) {
+        std::vector<value_type> v;
+        while (!empty(head)) {
+            v.push_back(value(head));
+            head = next(head);
+        }
+        return v;
+    }
 };
 
 /**

@@ -10,6 +10,7 @@ var searchData=
   ['_5fap_5ferror1_5fsoft_7',['_AP_ERROR1_SOFT',['../ap__error_8hpp.html#a3d8887772155cda99cbfd3d13720293f',1,'ap_error.hpp']]],
   ['_5fap_5ferror2_8',['_AP_ERROR2',['../ap__error_8hpp.html#ab229e0563904471be2dbea6933fc05de',1,'ap_error.hpp']]],
   ['_5fap_5ferror2_5fsoft_9',['_AP_ERROR2_SOFT',['../ap__error_8hpp.html#ad0fca62a55d1c79466507b1a53292d49',1,'ap_error.hpp']]],
-  ['_5fos_10',['_os',['../classinternal_1_1MessageHandler.html#adf6c593e6ded4da3bd37642e8185a565',1,'internal::MessageHandler']]],
-  ['_5fpush_11',['_push',['../classstack__pool.html#a4dcf0b1e4f4b71ab5d574397c0b99868',1,'stack_pool']]]
+  ['_5fget_5fstack_5fvector_10',['_get_stack_vector',['../classstack__pool.html#a41ec3012ddd7ec7a4169f45a11fc9f01',1,'stack_pool']]],
+  ['_5fos_11',['_os',['../classinternal_1_1MessageHandler.html#adf6c593e6ded4da3bd37642e8185a565',1,'internal::MessageHandler']]],
+  ['_5fpush_12',['_push',['../classstack__pool.html#a4dcf0b1e4f4b71ab5d574397c0b99868',1,'stack_pool']]]
 ];
